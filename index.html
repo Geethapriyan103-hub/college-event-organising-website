@@ -1,1057 +1,224 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechSphere - Event Management Portal</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #0a192f;
-            --secondary: #112240;
-            --accent: #64ffda;
-            --text: #ccd6f6;
-            --text-light: #8892b0;
-            --danger: #ff375f;
-            --success: #2ecc71;
-            --warning: #f39c12;
-            --glass: rgba(17, 34, 64, 0.85);
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: var(--primary);
-            color: var(--text);
-            min-height: 100vh;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(100, 255, 218, 0.05) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(100, 255, 218, 0.05) 0%, transparent 20%);
-        }
-        
-        .container {
-            width: 100%;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow-x: hidden;
-        }
-        
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 3rem;
-            background-color: var(--glass);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--accent);
-        }
-        
-        .logo i {
-            font-size: 2rem;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .user-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background-color: var(--secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid var(--accent);
-            font-weight: bold;
-        }
-        
-        /* Main content */
-        .main-content {
-            flex: 1;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-        
-        /* Dashboard cards */
-        .dashboard-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .card {
-            background-color: var(--glass);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(100, 255, 218, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-        }
-        
-        .card-title {
-            font-size: 1.2rem;
-            color: var(--accent);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .card-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--text);
-        }
-        
-        /* Tabs */
-        .tabs {
-            display: flex;
-            background-color: var(--secondary);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-        }
-        
-        .tab {
-            flex: 1;
-            padding: 1rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-bottom: 3px solid transparent;
-        }
-        
-        .tab.active {
-            background-color: var(--primary);
-            border-bottom: 3px solid var(--accent);
-        }
-        
-        .tab:hover:not(.active) {
-            background-color: rgba(100, 255, 218, 0.1);
-        }
-        
-        /* Tab content */
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        /* Tables */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-            background-color: var(--glass);
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-        
-        .data-table th, .data-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
-        }
-        
-        .data-table th {
-            background-color: var(--secondary);
-            color: var(--accent);
-            font-weight: 600;
-        }
-        
-        .data-table tr:hover {
-            background-color: rgba(100, 255, 218, 0.05);
-        }
-        
-        /* Buttons */
-        .btn {
-            padding: 0.6rem 1.2rem;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-primary {
-            background-color: var(--accent);
-            color: var(--primary);
-        }
-        
-        .btn-primary:hover {
-            background-color: #52d9b6;
-            transform: translateY(-2px);
-        }
-        
-        .btn-success {
-            background-color: var(--success);
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background-color: #27ae60;
-        }
-        
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background-color: #e6003a;
-        }
-        
-        .btn-warning {
-            background-color: var(--warning);
-            color: white;
-        }
-        
-        .btn-warning:hover {
-            background-color: #e67e22;
-        }
-        
-        .btn-small {
-            padding: 0.3rem 0.8rem;
-            font-size: 0.9rem;
-        }
-        
-        /* Forms */
-        .form-container {
-            background-color: var(--glass);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: var(--shadow);
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--accent);
-            font-weight: 600;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border-radius: 6px;
-            border: 1px solid rgba(100, 255, 218, 0.3);
-            background-color: var(--secondary);
-            color: var(--text);
-            font-size: 1rem;
-            transition: border 0.3s ease;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-        
-        /* Status badges */
-        .status-badge {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-        
-        .status-pending {
-            background-color: rgba(243, 156, 18, 0.2);
-            color: var(--warning);
-        }
-        
-        .status-approved {
-            background-color: rgba(46, 204, 113, 0.2);
-            color: var(--success);
-        }
-        
-        .status-rejected {
-            background-color: rgba(255, 55, 95, 0.2);
-            color: var(--danger);
-        }
-        
-        /* Login and Signup screens */
-        .auth-screen {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 2rem;
-        }
-        
-        .auth-container {
-            background-color: var(--glass);
-            border-radius: 15px;
-            padding: 3rem;
-            width: 100%;
-            max-width: 450px;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(100, 255, 218, 0.1);
-            animation: slideUp 0.5s ease;
-        }
-        
-        @keyframes slideUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        .auth-title {
-            text-align: center;
-            margin-bottom: 2rem;
-            color: var(--accent);
-            font-size: 2rem;
-        }
-        
-        .auth-switch {
-            text-align: center;
-            margin-top: 1.5rem;
-            color: var(--text-light);
-        }
-        
-        .auth-switch a {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        .auth-switch a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Role badge */
-        .role-badge {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-        
-        .role-admin {
-            background-color: rgba(100, 255, 218, 0.2);
-            color: var(--accent);
-        }
-        
-        .role-organizer {
-            background-color: rgba(52, 152, 219, 0.2);
-            color: #3498db;
-        }
-        
-        /* Event details */
-        .event-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-        
-        .event-detail-card {
-            background-color: var(--glass);
-            border-radius: 10px;
-            padding: 1.5rem;
-            border: 1px solid rgba(100, 255, 218, 0.1);
-        }
-        
-        .event-detail-title {
-            font-size: 1.1rem;
-            color: var(--accent);
-            margin-bottom: 0.5rem;
-        }
-        
-        .event-detail-value {
-            font-size: 1.3rem;
-            font-weight: 600;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header {
-                padding: 1rem;
-            }
-            
-            .main-content {
-                padding: 1rem;
-            }
-            
-            .dashboard-cards {
-                grid-template-columns: 1fr;
-            }
-            
-            .tabs {
-                flex-direction: column;
-            }
-            
-            .auth-container {
-                padding: 2rem;
-            }
-        }
-        
-        /* Loading animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(100, 255, 218, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--accent);
-            animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Notification */
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            background-color: var(--secondary);
-            color: var(--text);
-            box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 1000;
-            transform: translateX(150%);
-            transition: transform 0.5s ease;
-            border-left: 4px solid var(--accent);
-        }
-        
-        .notification.show {
-            transform: translateX(0);
-        }
-        
-        .notification-success {
-            border-left-color: var(--success);
-        }
-        
-        .notification-error {
-            border-left-color: var(--danger);
-        }
-    </style>
+<title>College Event Platform</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+font-family:Arial;
+}
+
+body{
+height:100vh;
+background:url("https://images.unsplash.com/photo-1523050854058-8df90110c9f1") no-repeat center/cover;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+/* blur overlay */
+.blur{
+position:fixed;
+inset:0;
+backdrop-filter:blur(12px);
+display:none;
+}
+
+/* glass card */
+.card{
+width:380px;
+background:rgba(255,255,255,0.15);
+backdrop-filter:blur(10px);
+border-radius:15px;
+padding:20px;
+color:white;
+box-shadow:0 0 20px rgba(0,0,0,0.5);
+}
+
+input,select,button{
+width:100%;
+padding:10px;
+margin:6px 0;
+border:none;
+border-radius:6px;
+}
+
+button{
+background:#00bcd4;
+color:white;
+cursor:pointer;
+font-weight:bold;
+}
+
+button:hover{
+background:#0097a7;
+}
+
+.hidden{
+display:none;
+}
+
+.section{
+margin-top:15px;
+background:rgba(0,0,0,0.4);
+padding:10px;
+border-radius:8px;
+}
+
+h2{
+text-align:center;
+margin-bottom:10px;
+}
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <!-- Login/Signup Screen -->
-        <div id="auth-screen" class="auth-screen">
-            <div class="auth-container">
-                <h1 class="auth-title" id="auth-title">Admin Login</h1>
-                <form id="auth-form">
-                    <div class="form-group" id="name-field" style="display: none;">
-                        <label class="form-label" for="name">Full Name</label>
-                        <input type="text" id="name" class="form-input" placeholder="Enter your full name">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="email">Email Address</label>
-                        <input type="email" id="email" class="form-input" placeholder="Enter your email">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="password">Password</label>
-                        <input type="password" id="password" class="form-input" placeholder="Enter your password">
-                    </div>
-                    <div class="form-group" id="role-field" style="display: none;">
-                        <label class="form-label" for="role">Account Type</label>
-                        <select id="role" class="form-input">
-                            <option value="admin">Admin</option>
-                            <option value="organizer">Event Organizer</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">
-                        <span id="auth-button-text">Login</span>
-                        <i class="fas fa-sign-in-alt"></i>
-                    </button>
-                </form>
-                <div class="auth-switch">
-                    <span id="auth-switch-text">Don't have an account? </span>
-                    <a href="#" id="auth-switch-link">Sign up</a>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Main App (Initially Hidden) -->
-        <div id="app" style="display: none;">
-            <!-- Header -->
-            <div class="header">
-                <div class="logo">
-                    <i class="fas fa-code"></i>
-                    <span>TechSphere</span>
-                </div>
-                <div class="user-info">
-                    <span id="logged-in-user">Admin</span>
-                    <div class="user-avatar" id="user-avatar">A</div>
-                    <button id="logout-btn" class="btn btn-danger btn-small">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Main Content -->
-            <div class="main-content">
-                <!-- Dashboard Stats -->
-                <div class="dashboard-cards">
-                    <div class="card">
-                        <div class="card-title">
-                            <i class="fas fa-users"></i>
-                            Total Registrations
-                        </div>
-                        <div class="card-value" id="total-registrations">0</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title">
-                            <i class="fas fa-check-circle"></i>
-                            Approved
-                        </div>
-                        <div class="card-value" id="approved-count">0</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title">
-                            <i class="fas fa-clock"></i>
-                            Pending
-                        </div>
-                        <div class="card-value" id="pending-count">0</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title">
-                            <i class="fas fa-calendar-alt"></i>
-                            Event Date
-                        </div>
-                        <div class="card-value" id="event-date">Oct 15</div>
-                    </div>
-                </div>
-                
-                <!-- Tabs -->
-                <div class="tabs">
-                    <div class="tab active" data-tab="registrations">
-                        <i class="fas fa-list"></i> Registrations
-                    </div>
-                    <div class="tab" data-tab="event-details">
-                        <i class="fas fa-calendar"></i> Event Details
-                    </div>
-                    <div class="tab" data-tab="organizers">
-                        <i class="fas fa-user-tie"></i> Organizers
-                    </div>
-                    <div class="tab" id="admin-tab" data-tab="admin">
-                        <i class="fas fa-cog"></i> Admin Settings
-                    </div>
-                </div>
-                
-                <!-- Tab Contents -->
-                <div id="registrations-tab" class="tab-content active">
-                    <h2>Event Registrations</h2>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Registration Date</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="registrations-table">
-                            <!-- Data will be populated by JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div id="event-details-tab" class="tab-content">
-                    <h2>Event Details</h2>
-                    <div class="event-details">
-                        <div class="event-detail-card">
-                            <div class="event-detail-title">Event Name</div>
-                            <div class="event-detail-value" id="current-event-name">TechSphere 2023</div>
-                        </div>
-                        <div class="event-detail-card">
-                            <div class="event-detail-title">Date</div>
-                            <div class="event-detail-value" id="current-event-date">October 15, 2023</div>
-                        </div>
-                        <div class="event-detail-card">
-                            <div class="event-detail-title">Time</div>
-                            <div class="event-detail-value" id="current-event-time">9:00 AM - 6:00 PM</div>
-                        </div>
-                        <div class="event-detail-card">
-                            <div class="event-detail-title">Venue</div>
-                            <div class="event-detail-value" id="current-event-venue">University Tech Hall</div>
-                        </div>
-                    </div>
-                    
-                    <div id="event-edit-form" class="form-container" style="margin-top: 2rem; display: none;">
-                        <h3>Edit Event Details</h3>
-                        <form id="edit-event-form">
-                            <div class="form-group">
-                                <label class="form-label" for="edit-event-name">Event Name</label>
-                                <input type="text" id="edit-event-name" class="form-input" value="TechSphere 2023">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="edit-event-date">Event Date</label>
-                                <input type="date" id="edit-event-date" class="form-input" value="2023-10-15">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="edit-event-time">Event Time</label>
-                                <input type="text" id="edit-event-time" class="form-input" value="9:00 AM - 6:00 PM">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="edit-event-venue">Event Venue</label>
-                                <input type="text" id="edit-event-venue" class="form-input" value="University Tech Hall">
-                            </div>
-                            <div class="form-group">
-                                <button type="submit" class="btn btn-success">
-                                    <i class="fas fa-save"></i> Save Changes
-                                </button>
-                                <button type="button" id="cancel-edit" class="btn btn-danger">
-                                    <i class="fas fa-times"></i> Cancel
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                    
-                    <div id="edit-event-button-container" style="margin-top: 2rem; text-align: center;">
-                        <button id="edit-event-btn" class="btn btn-primary">
-                            <i class="fas fa-edit"></i> Edit Event Details
-                        </button>
-                    </div>
-                </div>
-                
-                <div id="organizers-tab" class="tab-content">
-                    <h2>Event Organizers</h2>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Assigned Registrations</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="organizers-table">
-                            <!-- Data will be populated by JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div id="admin-tab" class="tab-content">
-                    <h2>Admin Settings</h2>
-                    <div class="form-container">
-                        <h3>Add New Organizer</h3>
-                        <form id="add-organizer-form">
-                            <div class="form-group">
-                                <label class="form-label" for="organizer-name">Full Name</label>
-                                <input type="text" id="organizer-name" class="form-input" placeholder="Enter organizer's full name">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="organizer-email">Email Address</label>
-                                <input type="email" id="organizer-email" class="form-input" placeholder="Enter organizer's email">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="organizer-password">Temporary Password</label>
-                                <input type="password" id="organizer-password" class="form-input" placeholder="Set temporary password">
-                            </div>
-                            <div class="form-group">
-                                <button type="submit" class="btn btn-success">
-                                    <i class="fas fa-user-plus"></i> Add Organizer
-                                </button>
-                            </div>
-                        </form>
-                        
-                        <div style="margin-top: 3rem;">
-                            <h3>System Information</h3>
-                            <p>Total Users: <span id="total-users">0</span></p>
-                            <p>System Version: 2.1.0</p>
-                            <p>Last Updated: October 1, 2023</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Notification -->
-        <div id="notification" class="notification">
-            <i class="fas fa-check-circle"></i>
-            <span id="notification-text">Operation completed successfully!</span>
-        </div>
-    </div>
-    
-    <script>
-        // Application State
-        const state = {
-            isLoggedIn: false,
-            currentUser: null,
-            isAdmin: false,
-            isSignupMode: false,
-            registrations: [
-                { id: 1, name: "Alex Johnson", email: "alex@example.com", date: "2023-10-01", status: "pending" },
-                { id: 2, name: "Sam Smith", email: "sam@example.com", date: "2023-10-02", status: "approved" },
-                { id: 3, name: "Taylor Brown", email: "taylor@example.com", date: "2023-10-02", status: "pending" },
-                { id: 4, name: "Jordan Lee", email: "jordan@example.com", date: "2023-10-03", status: "approved" },
-                { id: 5, name: "Casey Miller", email: "casey@example.com", date: "2023-10-03", status: "pending" }
-            ],
-            organizers: [
-                { name: "Admin User", email: "admin@techsphere.com", role: "admin", assigned: 5, status: "active" },
-                { name: "Chris Wilson", email: "chris@techsphere.com", role: "organizer", assigned: 3, status: "active" },
-                { name: "Morgan Davis", email: "morgan@techsphere.com", role: "organizer", assigned: 2, status: "active" }
-            ],
-            eventDetails: {
-                name: "TechSphere 2023",
-                date: "October 15, 2023",
-                time: "9:00 AM - 6:00 PM",
-                venue: "University Tech Hall"
-            },
-            users: [
-                { name: "Admin User", email: "admin@techsphere.com", password: "admin123", role: "admin" },
-                { name: "Chris Wilson", email: "chris@techsphere.com", password: "organizer123", role: "organizer" },
-                { name: "Morgan Davis", email: "morgan@techsphere.com", password: "organizer123", role: "organizer" }
-            ]
-        };
 
-        // DOM Elements
-        const authScreen = document.getElementById('auth-screen');
-        const app = document.getElementById('app');
-        const authForm = document.getElementById('auth-form');
-        const authTitle = document.getElementById('auth-title');
-        const authButtonText = document.getElementById('auth-button-text');
-        const authSwitchText = document.getElementById('auth-switch-text');
-        const authSwitchLink = document.getElementById('auth-switch-link');
-        const nameField = document.getElementById('name-field');
-        const roleField = document.getElementById('role-field');
-        const logoutBtn = document.getElementById('logout-btn');
-        const tabs = document.querySelectorAll('.tab');
-        const tabContents = document.querySelectorAll('.tab-content');
-        const adminTab = document.getElementById('admin-tab');
-        const registrationsTable = document.getElementById('registrations-table');
-        const organizersTable = document.getElementById('organizers-table');
-        const totalRegistrations = document.getElementById('total-registrations');
-        const approvedCount = document.getElementById('approved-count');
-        const pendingCount = document.getElementById('pending-count');
-        const eventDate = document.getElementById('event-date');
-        const currentEventName = document.getElementById('current-event-name');
-        const currentEventDate = document.getElementById('current-event-date');
-        const currentEventTime = document.getElementById('current-event-time');
-        const currentEventVenue = document.getElementById('current-event-venue');
-        const editEventBtn = document.getElementById('edit-event-btn');
-        const editEventForm = document.getElementById('event-edit-form');
-        const editEventButtonContainer = document.getElementById('edit-event-button-container');
-        const editEventFormFields = document.getElementById('edit-event-form');
-        const cancelEditBtn = document.getElementById('cancel-edit');
-        const addOrganizerForm = document.getElementById('add-organizer-form');
-        const totalUsers = document.getElementById('total-users');
-        const loggedInUser = document.getElementById('logged-in-user');
-        const userAvatar = document.getElementById('user-avatar');
-        const notification = document.getElementById('notification');
-        const notificationText = document.getElementById('notification-text');
+<div class="blur" id="blur"></div>
 
-        // Initialize the application
-        function initApp() {
-            // Check if user is already logged in (for demo purposes)
-            const savedUser = localStorage.getItem('techsphere_user');
-            if (savedUser) {
-                const user = JSON.parse(savedUser);
-                loginUser(user);
-            }
-            
-            setupEventListeners();
-            updateStats();
-            renderRegistrations();
-            renderOrganizers();
-        }
+<!-- LOGIN -->
+<div class="card" id="loginCard">
 
-        // Setup event listeners
-        function setupEventListeners() {
-            // Auth form submit
-            authForm.addEventListener('submit', handleAuthSubmit);
-            
-            // Auth mode switch
-            authSwitchLink.addEventListener('click', toggleAuthMode);
-            
-            // Logout
-            logoutBtn.addEventListener('click', handleLogout);
-            
-            // Tab switching
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const tabId = tab.getAttribute('data-tab');
-                    switchTab(tabId);
-                });
-            });
-            
-            // Edit event button
-            editEventBtn.addEventListener('click', () => {
-                showEventEditForm();
-            });
-            
-            // Cancel edit
-            cancelEditBtn.addEventListener('click', () => {
-                hideEventEditForm();
-            });
-            
-            // Edit event form submit
-            editEventFormFields.addEventListener('submit', handleEventEdit);
-            
-            // Add organizer form submit
-            addOrganizerForm.addEventListener('submit', handleAddOrganizer);
-        }
+<h2>College Login</h2>
 
-        // Handle authentication form submit
-        function handleAuthSubmit(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            if (state.isSignupMode) {
-                // Signup logic
-                const name = document.getElementById('name').value;
-                const role = document.getElementById('role').value;
-                
-                if (!name || !email || !password) {
-                    showNotification('Please fill all fields', 'error');
-                    return;
-                }
-                
-                // Check if user already exists
-                const existingUser = state.users.find(u => u.email === email);
-                if (existingUser) {
-                    showNotification('User with this email already exists', 'error');
-                    return;
-                }
-                
-                // Add new user
-                const newUser = { name, email, password, role };
-                state.users.push(newUser);
-                
-                // If organizer is being added, also add to organizers list
-                if (role === 'organizer') {
-                    state.organizers.push({
-                        name,
-                        email,
-                        role: 'organizer',
-                        assigned: 0,
-                        status: 'active'
-                    });
-                }
-                
-                showNotification('Account created successfully! Please login.', 'success');
-                toggleAuthMode(); // Switch back to login
-                
-                // Clear form
-                authForm.reset();
-            } else {
-                // Login logic
-                const user = state.users.find(u => u.email === email && u.password === password);
-                
-                if (user) {
-                    // Save user to localStorage
-                    localStorage.setItem('techsphere_user', JSON.stringify(user));
-                    loginUser(user);
-                    showNotification(`Welcome back, ${user.name}!`, 'success');
-                } else {
-                    showNotification('Invalid email or password', 'error');
-                }
-            }
-        }
+<input id="username" placeholder="Enter name">
 
-        // Login user
-        function loginUser(user) {
-            state.currentUser = user;
-            state.isLoggedIn = true;
-            state.isAdmin = user.role === 'admin';
-            
-            // Update UI
-            authScreen.style.display = 'none';
-            app.style.display = 'flex';
-            
-            // Set user info
-            loggedInUser.textContent = user.name;
-            userAvatar.textContent = user.name.charAt(0).toUpperCase();
-            
-            // Show/hide admin tab based on role
-            if (state.isAdmin) {
-                adminTab.style.display = 'flex';
-            } else {
-                adminTab.style.display = 'none';
-                // If organizer, switch to registrations tab
-                switchTab('registrations');
-            }
-            
-            // Update stats and render data
-            updateStats();
-            renderRegistrations();
-            renderOrganizers();
-            updateEventDetailsDisplay();
-            totalUsers.textContent = state.users.length;
-        }
+<select id="role">
+<option value="student">Student</option>
+<option value="admin">Admin</option>
+</select>
 
-        // Logout user
-        function handleLogout() {
-            state.isLoggedIn = false;
-            state.currentUser = null;
-            state.isAdmin = false;
-            
-            // Clear localStorage
-            localStorage.removeItem('techsphere_user');
-            
-            // Switch back to auth screen
-            app.style.display = 'none';
-            authScreen.style.display = 'flex';
-            
-            // Reset auth form to login mode
-            if (state.isSignupMode) {
-                toggleAuthMode();
-            }
-            
-            // Clear form
-            authForm.reset();
-            
-            showNotification('Logged out successfully', 'success');
-        }
+<button onclick="login()">Login / Register</button>
 
-        // Toggle between login and signup
-        function toggleAuthMode() {
-            state.isSignupMode = !state.isSignupMode;
-            
-            if (state.isSignupMode) {
-                // Switch to signup
-                authTitle.textContent = 'Create Account';
-                authButtonText.textContent = 'Sign Up';
-                authSwitchText.textContent = 'Already have an account? ';
-                authSwitchLink.textContent = 'Login';
-                nameField.style.display = 'block';
-                roleField.style.display = 'block';
-            } else {
-                // Switch to login
-                authTitle.textContent = 'Admin Login';
-                authButtonText.textContent = 'Login';
-                authSwitchText.textContent = 'Don\'t have an account? ';
-                authSwitchLink.textContent = 'Sign up';
-                nameField.style.display = 'none';
-                roleField.style.display = 'none';
-            }
-            
-            // Clear form
-            authForm.reset();
-        }
+</div>
 
-        // Switch between tabs
-        function switchTab(tabId) {
-            // Update active tab
-            tabs.forEach(tab => {
-                if (tab.getAttribute('data-tab') === tabId) {
-                    tab.classList.add('active');
-                } else {
-                    tab.classList.remove('active');
-                }
-            });
-            
-            // Update active tab content
-            tabContents.forEach(content => {
-                if (content.id === `${tabId}-tab`) {
-                    content.classList.add('active');
-                } else {
-                    content.classList.remove('active');
-                }
-            });
-            
-            // Special handling for event details tab
-            if (tabId === 'event-details') {
-                // Hide edit form when switching to this tab
-                hideEventEditForm();
-            }
-        }
+<!-- DASHBOARD -->
+<div class="card hidden" id="dashboard">
 
-        // Update dashboard statistics
-        function updateStats() {
-            const total = state.registrations.length;
-            const approved = state.registrations.filter(r => r.status === 'approved').length;
-            const pending = state.registrations.filter(r => r.status === 'pending').length;
-            
-            totalRegistrations.textContent = total;
-            approvedCount.textContent = approved;
-            pendingCount.textContent = pending;
-            
-            // Extract date from event details
-            const dateStr = state.eventDetails.date;
-            const dateMatch = dateStr.match(/\b(\w+)\s(\d{1,2}),\s(\d{4})\b/);
-            if (dateMatch) {
-                eventDate.textContent = `${dateMatch[1].substring(0, 3)} ${dateMatch[2]}`;
-            }
-        }
+<h2 id="welcome"></h2>
 
-        // Render registrations table
-        function renderRegistrations() {
-            registrationsTable.innerHTML = '';
-            
-            state.registrations.forEach(registration => {
-                const row = document.createElement('tr');
-                
-                // Determine status badge
-                let statusBadge;
-                if (registration.status === 'approved') {
-                    statusBadge = `<span class="status-badge status-approved">Approved</span>`;
-                } else if (registration.status === 'pending') {
-                    statusBadge = `<span class="status-badge status-pending">Pending</span>`;
-                } else {
-                    statusBadge = `<span class="status-badge status-rejected">Rejected</span>`;
-                }
-                
-                // Determine action buttons based on user role
-                let actionButtons = '';
-                if (state.isAdmin || state.currentUser?.role === 'organizer') {
-                    if (registration.status === 'pending') {
-                        actionButtons = `
-                            <button class="btn btn-success btn-small approve-btn" data-id="${registration.id}">
-                                <i class="fas fa-check"></i> Approve
-                            </button>
-                            <button class="btn btn-danger btn-small reject-btn
+<div class="section">
+<h3>Events</h3>
+<div id="eventList"></div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="section hidden" id="adminPanel">
+<h3>Admin Panel</h3>
+
+<input id="eventTitle" placeholder="Event name">
+<input id="eventTime" placeholder="Time & Date">
+<input id="eventPlace" placeholder="Place">
+
+<button onclick="addEvent()">Add Event</button>
+</div>
+
+<button onclick="logout()">Logout</button>
+
+</div>
+
+<script>
+
+/* storage */
+let users = JSON.parse(localStorage.getItem("users")||"[]");
+let events = JSON.parse(localStorage.getItem("events")||"[]");
+
+let currentUser=null;
+
+/* login/register */
+function login(){
+
+let name=document.getElementById("username").value;
+let role=document.getElementById("role").value;
+
+if(!name){
+alert("Enter name");
+return;
+}
+
+let user=users.find(u=>u.name===name);
+
+if(!user){
+user={name,role};
+users.push(user);
+localStorage.setItem("users",JSON.stringify(users));
+}
+
+currentUser=user;
+
+document.getElementById("loginCard").classList.add("hidden");
+document.getElementById("dashboard").classList.remove("hidden");
+document.getElementById("blur").style.display="block";
+
+document.getElementById("welcome").innerText=
+"Welcome "+user.name+" ("+user.role+")";
+
+if(user.role==="admin"){
+document.getElementById("adminPanel").classList.remove("hidden");
+}
+
+renderEvents();
+}
+
+/* logout */
+function logout(){
+location.reload();
+}
+
+/* add event */
+function addEvent(){
+
+let title=document.getElementById("eventTitle").value;
+let time=document.getElementById("eventTime").value;
+let place=document.getElementById("eventPlace").value;
+
+if(!title) return;
+
+events.push({title,time,place});
+localStorage.setItem("events",JSON.stringify(events));
+
+renderEvents();
+
+document.getElementById("eventTitle").value="";
+document.getElementById("eventTime").value="";
+document.getElementById("eventPlace").value="";
+}
+
+/* render events */
+function renderEvents(){
+
+let box=document.getElementById("eventList");
+box.innerHTML="";
+
+if(events.length===0){
+box.innerHTML="No events yet";
+return;
+}
+
+events.forEach((e,i)=>{
+
+let div=document.createElement("div");
+
+div.innerHTML=`
+<b>${e.title}</b><br>
+🕒 ${e.time}<br>
+📍 ${e.place}<br>
+<button onclick="register(${i})">Register</button>
+<hr>
+`;
+
+box.appendChild(div);
+});
+}
+
+/* registration simulation */
+function register(i){
+alert("Registered for "+events[i].title);
+}
+
+</script>
+
+</body>
+</html>
