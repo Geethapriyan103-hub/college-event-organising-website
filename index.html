@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>College Event System</title>
+
+<style>
+
+body{
+background:linear-gradient(135deg,#020617,#0f172a);
+color:#e5e7eb;
+font-family:Segoe UI;
+padding:20px;
+}
+
+section{
+background:#020617;
+border:1px solid #1f2937;
+padding:15px;
+margin:15px 0;
+border-radius:10px;
+}
+
+input,select,button{
+padding:8px;
+margin:5px;
+border-radius:6px;
+border:none;
+}
+
+input,select{background:#111827;color:white}
+button{background:#38bdf8;color:black;font-weight:bold}
+
+.card{
+display:inline-block;
+background:#111827;
+padding:10px;
+margin:5px;
+border-radius:8px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🎓 College Event Portal</h1>
+
+<section>
+
+<h2>Login / Signup</h2>
+
+<input id="user" placeholder="Username">
+<input id="pass" placeholder="Password">
+<select id="role">
+<option>student</option>
+<option>organizer</option>
+<option>admin</option>
+</select>
+
+<button onclick="signup()">Signup</button>
+<button onclick="login()">Login</button>
+
+</section>
+
+<section>
+
+<h2>Admin Create Event</h2>
+
+<input id="evName" placeholder="Event">
+<input id="evDate" type="date">
+<input id="evTime" type="time">
+<input id="evPlace" placeholder="Place">
+
+<button onclick="createEvent()">Add Event</button>
+
+</section>
+
+<section>
+
+<h2>Events</h2>
+<ul id="events"></ul>
+
+</section>
+
+<section>
+
+<h2>Organizer Approval</h2>
+<button onclick="loadRegs()">Refresh</button>
+<ul id="regs"></ul>
+
+</section>
+
+<section>
+
+<h2>Attendance</h2>
+<input id="attID" placeholder="Registration ID">
+<button onclick="markAttendance()">Mark</button>
+
+</section>
+
+<section>
+
+<h2>Dashboard</h2>
+<button onclick="dashboard()">Load</button>
+<div id="stats"></div>
+
+</section>
+
+<section>
+
+<h2>Participants</h2>
+<input id="partEvent" placeholder="Event ID">
+<button onclick="participants()">Show</button>
+<ul id="plist"></ul>
+
+</section>
+
+<script>
+
+const API="http://localhost:3000";
+let currentUser=null;
+
+function signup(){
+fetch(API+"/signup",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+username:user.value,
+password:pass.value,
+role:role.value
+})
+}).then(r=>alert("Signup done"));
+}
+
+function login(){
+fetch(API+"/login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+username:user.value,
+password:pass.value
+})
+})
+.then(r=>r.json())
+.then(d=>{
+currentUser=d;
+alert("Logged in as "+d.role);
+});
+}
+
+function createEvent(){
+if(currentUser.role!=="admin"){
+alert("Admin only");
+return;
+}
+
+fetch(API+"/events",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+name:evName.value,
+date:evDate.value,
+time:evTime.value,
+place:evPlace.value
+})
+}).then(loadEvents);
+}
+
+function loadEvents(){
+fetch(API+"/events")
+.then(r=>r.json())
+.then(d=>{
+events.innerHTML="";
+d.forEach(e=>{
+events.innerHTML+=`
+<li>
+${e.id} — ${e.name} ${e.date} ${e.time} @ ${e.place}
+<button onclick="register(${e.id})">Register</button>
+</li>`;
+});
+});
+}
+
+function register(id){
+fetch(API+"/register",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+user_id:currentUser.id,
+event_id:id
+})
+}).then(()=>alert("Registered"));
+}
+
+function loadRegs(){
+fetch(API+"/registrations")
+.then(r=>r.json())
+.then(d=>{
+regs.innerHTML="";
+d.forEach(r=>{
+regs.innerHTML+=`
+<li>
+ID ${r.id} → User ${r.user_id} Event ${r.event_id}
+(${r.status})
+<button onclick="approve(${r.id})">Approve</button>
+</li>`;
+});
+});
+}
+
+function approve(id){
+fetch(API+"/approve/"+id,{method:"POST"})
+.then(loadRegs);
+}
+
+function markAttendance(){
+fetch(API+"/attendance/"+attID.value,{method:"POST"})
+.then(()=>alert("Attendance marked"));
+}
+
+function dashboard(){
+fetch(API+"/dashboard")
+.then(r=>r.json())
+.then(s=>{
+stats.innerHTML=`
+<div class="card">Users: ${s.users}</div>
+<div class="card">Events: ${s.events}</div>
+<div class="card">Regs: ${s.registrations}</div>
+<div class="card">Pending: ${s.pending}</div>
+<div class="card">Approved: ${s.approved}</div>`;
+});
+}
+
+function participants(){
+fetch(API+"/participants/"+partEvent.value)
+.then(r=>r.json())
+.then(d=>{
+plist.innerHTML="";
+d.forEach(p=>{
+plist.innerHTML+=`
+<li>${p.username} — ${p.status}
+${p.attendance?"✅":"❌"}
+</li>`;
+});
+});
+}
+
+loadEvents();
+
+</script>
+
+</body>
+</html>
